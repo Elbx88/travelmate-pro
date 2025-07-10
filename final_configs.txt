@@ -1,0 +1,711 @@
+# .github/ISSUE_TEMPLATE/bug_report.yml
+name: 🐛 Bug Report
+description: File a bug report to help us improve
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+        
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Also tell us, what did you expect to happen?
+      placeholder: Tell us what you see!
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: browsers
+    attributes:
+      label: What browsers are you seeing the problem on?
+      multiple: true
+      options:
+        - Firefox
+        - Chrome
+        - Safari
+        - Microsoft Edge
+        
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      render: shell
+
+---
+# .github/ISSUE_TEMPLATE/feature_request.yml
+name: 🚀 Feature Request
+description: Suggest an idea for this project
+title: "[Feature]: "
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new feature!
+        
+  - type: textarea
+    id: problem
+    attributes:
+      label: Is your feature request related to a problem?
+      description: A clear and concise description of what the problem is.
+      placeholder: I'm always frustrated when...
+    validations:
+      required: true
+      
+  - type: textarea
+    id: solution
+    attributes:
+      label: Describe the solution you'd like
+      description: A clear and concise description of what you want to happen.
+    validations:
+      required: true
+      
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Describe alternatives you've considered
+      description: A clear and concise description of any alternative solutions or features you've considered.
+
+---
+# .github/PULL_REQUEST_TEMPLATE.md
+## 📋 Description
+
+Brief description of what this PR does.
+
+## 🔗 Related Issue
+
+Fixes #(issue number)
+
+## 🧪 Type of Change
+
+- [ ] 🐛 Bug fix (non-breaking change which fixes an issue)
+- [ ] ✨ New feature (non-breaking change which adds functionality)
+- [ ] 💥 Breaking change (fix or feature that would cause existing functionality to not work as expected)
+- [ ] 📚 Documentation update
+- [ ] 🎨 Style/UI update
+- [ ] ♻️ Code refactor
+- [ ] ⚡ Performance improvement
+- [ ] 🔧 Build/CI update
+
+## ✅ Testing
+
+- [ ] Tests added/updated
+- [ ] All tests passing
+- [ ] E2E tests passing
+- [ ] Manual testing completed
+
+## 📝 Checklist
+
+- [ ] My code follows the style guidelines of this project
+- [ ] I have performed a self-review of my own code
+- [ ] I have commented my code, particularly in hard-to-understand areas
+- [ ] I have made corresponding changes to the documentation
+- [ ] My changes generate no new warnings
+- [ ] I have added tests that prove my fix is effective or that my feature works
+- [ ] New and existing unit tests pass locally with my changes
+
+## 📸 Screenshots (if applicable)
+
+Add screenshots to help explain your changes.
+
+## 🚀 Deployment Notes
+
+Any special deployment considerations or migrations needed.
+
+---
+# frontend/.storybook/main.ts
+import type { StorybookConfig } from '@storybook/react-vite';
+
+const config: StorybookConfig = {
+  stories: ['../src/**/*.stories.@(js|jsx|ts|tsx|mdx)'],
+  addons: [
+    '@storybook/addon-essentials',
+    '@storybook/addon-interactions',
+    '@storybook/addon-a11y',
+    '@storybook/addon-viewport',
+    '@storybook/addon-docs',
+  ],
+  framework: {
+    name: '@storybook/react-vite',
+    options: {},
+  },
+  features: {
+    buildStoriesJson: true,
+  },
+  docs: {
+    autodocs: 'tag',
+  },
+  typescript: {
+    check: false,
+    reactDocgen: 'react-docgen-typescript',
+    reactDocgenTypescriptOptions: {
+      shouldExtractLiteralValuesFromEnum: true,
+      propFilter: (prop) => (prop.parent ? !/node_modules/.test(prop.parent.fileName) : true),
+    },
+  },
+};
+
+export default config;
+
+---
+# frontend/.storybook/preview.ts
+import type { Preview } from '@storybook/react';
+import '../src/styles/index.css';
+
+const preview: Preview = {
+  parameters: {
+    actions: { argTypesRegex: '^on[A-Z].*' },
+    controls: {
+      matchers: {
+        color: /(background|color)$/i,
+        date: /Date$/,
+      },
+    },
+    docs: {
+      extractComponentDescription: (component, { notes }) => {
+        if (notes) {
+          return typeof notes === 'string' ? notes : notes.markdown || notes.text;
+        }
+        return null;
+      },
+    },
+    viewport: {
+      viewports: {
+        mobile: {
+          name: 'Mobile',
+          styles: {
+            width: '375px',
+            height: '667px',
+          },
+        },
+        tablet: {
+          name: 'Tablet',
+          styles: {
+            width: '768px',
+            height: '1024px',
+          },
+        },
+        desktop: {
+          name: 'Desktop',
+          styles: {
+            width: '1024px',
+            height: '768px',
+          },
+        },
+      },
+    },
+  },
+  globalTypes: {
+    theme: {
+      description: 'Global theme for components',
+      defaultValue: 'light',
+      toolbar: {
+        title: 'Theme',
+        icon: 'circlehollow',
+        items: ['light', 'dark'],
+        dynamicTitle: true,
+      },
+    },
+  },
+};
+
+export default preview;
+
+---
+# backend/swagger.config.js
+const swaggerJsdoc = require('swagger-jsdoc');
+
+const options = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: process.env.SWAGGER_TITLE || 'My Ultimate App API',
+      version: process.env.SWAGGER_VERSION || '1.0.0',
+      description: process.env.SWAGGER_DESCRIPTION || 'RESTful API for My Ultimate App',
+      contact: {
+        name: process.env.SWAGGER_CONTACT_NAME || 'API Support',
+        email: process.env.SWAGGER_CONTACT_EMAIL || 'support@example.com',
+      },
+    },
+    servers: [
+      {
+        url: process.env.NODE_ENV === 'production' 
+          ? 'https://api.yourapp.com' 
+          : `http://localhost:${process.env.PORT || 3001}`,
+        description: process.env.NODE_ENV === 'production' ? 'Production server' : 'Development server',
+      },
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      },
+      schemas: {
+        Error: {
+          type: 'object',
+          properties: {
+            error: {
+              type: 'string',
+              description: 'Error message',
+            },
+            code: {
+              type: 'string',
+              description: 'Error code',
+            },
+            details: {
+              type: 'object',
+              description: 'Additional error details',
+            },
+          },
+        },
+        User: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string',
+              description: 'User ID',
+            },
+            email: {
+              type: 'string',
+              format: 'email',
+              description: 'User email',
+            },
+            name: {
+              type: 'string',
+              description: 'User full name',
+            },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'User creation date',
+            },
+            updatedAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'User last update date',
+            },
+          },
+        },
+      },
+    },
+    security: [
+      {
+        bearerAuth: [],
+      },
+    ],
+  },
+  apis: ['./src/routes/*.js', './src/models/*.js'],
+};
+
+module.exports = swaggerJsdoc(options);
+
+---
+# monitoring/prometheus/alerts.yml
+groups:
+  - name: application.rules
+    rules:
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is above 10% for 5 minutes"
+
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High response time detected"
+          description: "95th percentile response time is above 500ms"
+
+      - alert: DatabaseConnectionsHigh
+        expr: db_connections_active / db_connections_max > 0.8
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Database connections high"
+          description: "Database connection usage is above 80%"
+
+      - alert: MemoryUsageHigh
+        expr: process_resident_memory_bytes / 1024 / 1024 > 512
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is above 512MB"
+
+      - alert: ApplicationDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Application is down"
+          description: "Application has been down for more than 1 minute"
+
+  - name: infrastructure.rules
+    rules:
+      - alert: HighCPUUsage
+        expr: rate(process_cpu_seconds_total[5m]) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage is above 80%"
+
+      - alert: DiskSpaceLow
+        expr: node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"} < 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Low disk space"
+          description: "Disk space is below 10%"
+
+---
+# .github/workflows/performance.yml
+name: 🚀 Performance Testing
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM
+
+jobs:
+  lighthouse-ci:
+    name: 🔍 Lighthouse CI
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+          
+      - name: 📦 Install dependencies
+        working-directory: ./frontend
+        run: npm ci
+        
+      - name: 🏗️ Build application
+        working-directory: ./frontend
+        run: npm run build
+        
+      - name: 🔍 Run Lighthouse CI
+        working-directory: ./frontend
+        run: |
+          npm install -g @lhci/cli@0.12.x
+          lhci autorun
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+
+  load-testing:
+    name: 🏋️ Load Testing
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        
+      - name: 🏋️ Run K6 Load Test
+        uses: grafana/k6-action@v0.3.0
+        with:
+          filename: tests/performance/load-test.js
+        env:
+          K6_PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_URL }}
+
+---
+# tests/performance/load-test.js
+import http from 'k6/http';
+import { check, sleep } from 'k6';
+import { Rate } from 'k6/metrics';
+
+export let errorRate = new Rate('errors');
+
+export let options = {
+  stages: [
+    { duration: '2m', target: 10 },  // Ramp up
+    { duration: '5m', target: 10 },  // Stay at 10 users
+    { duration: '2m', target: 20 },  // Ramp up to 20 users
+    { duration: '5m', target: 20 },  // Stay at 20 users
+    { duration: '2m', target: 0 },   // Ramp down
+  ],
+  thresholds: {
+    http_req_duration: ['p(95)<500'],  // 95% of requests must complete below 500ms
+    errors: ['rate<0.1'],               // Error rate must be below 10%
+  },
+};
+
+const BASE_URL = __ENV.BASE_URL || 'http://localhost:3000';
+
+export default function () {
+  // Test homepage
+  let homeResponse = http.get(`${BASE_URL}/`);
+  check(homeResponse, {
+    'homepage status is 200': (r) => r.status === 200,
+    'homepage loads in <500ms': (r) => r.timings.duration < 500,
+  }) || errorRate.add(1);
+
+  sleep(1);
+
+  // Test API endpoint
+  let apiResponse = http.get(`${BASE_URL}/api/health`);
+  check(apiResponse, {
+    'API status is 200': (r) => r.status === 200,
+    'API responds in <200ms': (r) => r.timings.duration < 200,
+  }) || errorRate.add(1);
+
+  sleep(1);
+}
+
+---
+# frontend/lighthouserc.js
+module.exports = {
+  ci: {
+    collect: {
+      staticDistDir: './dist',
+      numberOfRuns: 3,
+    },
+    assert: {
+      assertions: {
+        'categories:performance': ['warn', { minScore: 0.9 }],
+        'categories:accessibility': ['error', { minScore: 0.95 }],
+        'categories:best-practices': ['warn', { minScore: 0.9 }],
+        'categories:seo': ['warn', { minScore: 0.9 }],
+        'categories:pwa': ['warn', { minScore: 0.8 }],
+      },
+    },
+    upload: {
+      target: 'temporary-public-storage',
+    },
+  },
+};
+
+---
+# backend/src/middleware/cache.js
+const redis = require('redis');
+const client = redis.createClient(process.env.REDIS_URL);
+
+const cache = (duration = 300) => {
+  return async (req, res, next) => {
+    if (req.method !== 'GET') {
+      return next();
+    }
+
+    const key = `cache:${req.originalUrl}`;
+    
+    try {
+      const cached = await client.get(key);
+      
+      if (cached) {
+        return res.json(JSON.parse(cached));
+      }
+      
+      // Override res.json to cache the response
+      const originalJson = res.json;
+      res.json = function(data) {
+        client.setex(key, duration, JSON.stringify(data));
+        return originalJson.call(this, data);
+      };
+      
+      next();
+    } catch (error) {
+      console.error('Cache error:', error);
+      next();
+    }
+  };
+};
+
+module.exports = cache;
+
+---
+# backend/src/middleware/metrics.js
+const promClient = require('prom-client');
+
+// Create a Registry which registers the metrics
+const register = new promClient.Registry();
+
+// Add default metrics
+promClient.collectDefaultMetrics({
+  app: 'my-ultimate-app-backend',
+  prefix: 'node_',
+  timeout: 10000,
+  gcDurationBuckets: [0.001, 0.01, 0.1, 1, 2, 5],
+  register,
+});
+
+// Create custom metrics
+const httpRequestsTotal = new promClient.Counter({
+  name: 'http_requests_total',
+  help: 'Total number of HTTP requests',
+  labelNames: ['method', 'route', 'status'],
+  registers: [register],
+});
+
+const httpRequestDuration = new promClient.Histogram({
+  name: 'http_request_duration_seconds',
+  help: 'Duration of HTTP requests in seconds',
+  labelNames: ['method', 'route', 'status'],
+  buckets: [0.1, 0.3, 0.5, 0.7, 1, 3, 5, 7, 10],
+  registers: [register],
+});
+
+const dbConnectionsActive = new promClient.Gauge({
+  name: 'db_connections_active',
+  help: 'Number of active database connections',
+  registers: [register],
+});
+
+const dbConnectionsMax = new promClient.Gauge({
+  name: 'db_connections_max',
+  help: 'Maximum number of database connections',
+  registers: [register],
+});
+
+// Middleware to collect metrics
+const metricsMiddleware = (req, res, next) => {
+  const start = Date.now();
+  
+  res.on('finish', () => {
+    const duration = (Date.now() - start) / 1000;
+    const route = req.route ? req.route.path : req.path;
+    
+    httpRequestsTotal
+      .labels(req.method, route, res.statusCode.toString())
+      .inc();
+      
+    httpRequestDuration
+      .labels(req.method, route, res.statusCode.toString())
+      .observe(duration);
+  });
+  
+  next();
+};
+
+// Metrics endpoint
+const metricsEndpoint = async (req, res) => {
+  try {
+    res.set('Content-Type', register.contentType);
+    res.end(await register.metrics());
+  } catch (error) {
+    res.status(500).end(error);
+  }
+};
+
+module.exports = {
+  register,
+  metricsMiddleware,
+  metricsEndpoint,
+  dbConnectionsActive,
+  dbConnectionsMax,
+};
+
+---
+# Package.json script additions for the root directory
+{
+  "scripts": {
+    "setup": "chmod +x scripts/setup.sh && ./scripts/setup.sh",
+    "dev": "concurrently \"cd frontend && npm run dev\" \"cd backend && npm run dev\"",
+    "build": "npm run build:frontend && npm run build:backend",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend": "cd backend && npm run build",
+    "test": "npm run test:frontend && npm run test:backend",
+    "test:frontend": "cd frontend && npm test",
+    "test:backend": "cd backend && npm test",
+    "test:e2e": "cd frontend && npm run test:e2e",
+    "lint": "npm run lint:frontend && npm run lint:backend",
+    "lint:frontend": "cd frontend && npm run lint",
+    "lint:backend": "cd backend && npm run lint",
+    "format": "npm run format:frontend && npm run format:backend",
+    "format:frontend": "cd frontend && npm run format",
+    "format:backend": "cd backend && npm run format",
+    "validate": "npm run lint && npm run test",
+    "deploy:staging": "chmod +x scripts/deploy.sh && ./scripts/deploy.sh staging",
+    "deploy:production": "chmod +x scripts/deploy.sh && ./scripts/deploy.sh production",
+    "backup": "chmod +x scripts/backup.sh && ./scripts/backup.sh",
+    "health": "chmod +x scripts/health-check.sh && ./scripts/health-check.sh",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:build": "docker-compose build",
+    "k8s:deploy": "kubectl apply -f infrastructure/kubernetes/",
+    "k8s:status": "kubectl get pods,services,ingress -n my-ultimate-app",
+    "storybook": "cd frontend && npm run storybook",
+    "build-storybook": "cd frontend && npm run build-storybook"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
+
+---
+# Additional VS Code workspace settings
+# .vscode/settings.json
+{
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "emmet.includeLanguages": {
+    "javascript": "javascriptreact",
+    "typescript": "typescriptreact"
+  },
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "editor.quickSuggestions": {
+    "strings": true
+  },
+  "tailwindCSS.includeLanguages": {
+    "typescript": "typescript",
+    "typescriptreact": "typescriptreact"
+  },
+  "tailwindCSS.experimental.classRegex": [
+    "tw`([^`]*)",
+    "tw=\"([^\"]*)",
+    "tw={\"([^\"}]*)",
+    "tw\\.\\w+`([^`]*)",
+    "tw\\(.*?\\)`([^`]*)"
+  ]
+}
+
+---
+# .vscode/extensions.json
+{
+  "recommendations": [
+    "bradlc.vscode-tailwindcss",
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "ms-vscode.vscode-typescript-next",
+    "formulahendry.auto-rename-tag",
+    "christian-kohler.path-intellisense",
+    "ms-vscode.vscode-json",
+    "redhat.vscode-yaml",
+    "ms-kubernetes-tools.vscode-kubernetes-tools",
+    "hashicorp.terraform",
+    "ms-vscode.vscode-docker"
+  ]
+}
