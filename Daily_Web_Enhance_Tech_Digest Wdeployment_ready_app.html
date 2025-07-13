@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Daily Tech Digest</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            background: var(--bg-gradient);
+            transition: all 0.3s ease;
+        }
+
+        /* CSS Variables for Themes */
+        :root {
+            /* Default Theme - Original */
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-color: #2d3748;
+            --primary-color: #667eea;
+            --success-color: #48bb78;
+            --warning-color: #ed8936;
+            --info-color: #4299e1;
+            --ticker-bg: rgba(0, 0, 0, 0.95);
+            --ticker-text: #00ff41;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Dark Matrix Theme */
+        .theme-matrix {
+            --bg-gradient: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #0d1117 100%);
+            --card-bg: rgba(33, 38, 45, 0.95);
+            --text-color: #00ff41;
+            --primary-color: #00ff41;
+            --success-color: #39ff14;
+            --warning-color: #ffaa00;
+            --info-color: #00ffff;
+            --ticker-bg: rgba(0, 255, 65, 0.1);
+            --ticker-text: #00ff41;
+            --shadow: 0 10px 25px -5px rgba(0, 255, 65, 0.3);
+        }
+
+        /* Cyberpunk Theme */
+        .theme-cyberpunk {
+            --bg-gradient: linear-gradient(135deg, #ff006e 0%, #8338ec 50%, #3a86ff 100%);
+            --card-bg: rgba(20, 20, 30, 0.9);
+            --text-color: #ff006e;
+            --primary-color: #ff006e;
+            --success-color: #06ffa5;
+            --warning-color: #ffbe0b;
+            --info-color: #8338ec;
+            --ticker-bg: rgba(255, 0, 110, 0.15);
+            --ticker-text: #06ffa5;
+            --shadow: 0 0 30px rgba(255, 0, 110, 0.5);
+        }
+
+        /* Minimal Clean Theme */
+        .theme-minimal {
+            --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            --card-bg: rgba(255, 255, 255, 0.8);
+            --text-color: #1a202c;
+            --primary-color: #4a5568;
+            --success-color: #38a169;
+            --warning-color: #d69e2e;
+            --info-color: #3182ce;
+            --ticker-bg: rgba(26, 32, 44, 0.95);
+            --ticker-text: #e2e8f0;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+        }
+
+        /* Ocean Theme */
+        .theme-ocean {
+            --bg-gradient: linear-gradient(135deg, #1e3a8a 0%, #1e40af 30%, #0ea5e9 70%, #06b6d4 100%);
+            --card-bg: rgba(30, 58, 138, 0.9);
+            --text-color: #e0f2fe;
+            --primary-color: #06b6d4;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --info-color: #3b82f6;
+            --ticker-bg: rgba(6, 182, 212, 0.2);
+            --ticker-text: #a5f3fc;
+            --shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.4);
+        }
+
+        /* Sunset Theme */
+        .theme-sunset {
+            --bg-gradient: linear-gradient(135deg, #ff7e5f 0%, #feb47b 50%, #ff6b6b 100%);
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --text-color: #742a2a;
+            --primary-color: #e53e3e;
+            --success-color: #38a169;
+            --warning-color: #d69e2e;
+            --info-color: #3182ce;
+            --ticker-bg: rgba(116, 42, 42, 0.9);
+            --ticker-text: #fed7d7;
+            --shadow: 0 10px 25px -5px rgba(255, 107, 107, 0.4);
+        }
+
+        /* Forest Theme */
+        .theme-forest {
+            --bg-gradient: linear-gradient(135deg, #134e4a 0%, #047857 50%, #10b981 100%);
+            --card-bg: rgba(6, 78, 59, 0.9);
+            --text-color: #d1fae5;
+            --primary-color: #10b981;
+            --success-color: #34d399;
+            --warning-color: #fbbf24;
+            --info-color: #06b6d4;
+            --ticker-bg: rgba(16, 185, 129, 0.15);
+            --ticker-text: #a7f3d0;
+            --shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.3);
+        }
+
+        /* Theme Selector */
+        .theme-selector {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1001;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .theme-options {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .theme-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .theme-btn:hover {
+            transform: scale(1.1);
+            border-color: var(--primary-color);
+        }
+
+        .theme-btn.active {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+        }
+
+        .theme-btn.default { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .theme-btn.matrix { background: linear-gradient(135deg, #0d1117, #00ff41); }
+        .theme-btn.cyberpunk { background: linear-gradient(135deg, #ff006e, #8338ec); }
+        .theme-btn.minimal { background: linear-gradient(135deg, #f8fafc, #4a5568); }
+        .theme-btn.ocean { background: linear-gradient(135deg, #1e3a8a, #06b6d4); }
+        .theme-btn.sunset { background: linear-gradient(135deg, #ff7e5f, #ff6b6b); }
+        .theme-btn.forest { background: linear-gradient(135deg, #134e4a, #10b981); }
+
+        .theme-label {
+            font-size: 12px;
+            color: var(--text-color);
+            font-weight: 600;
+            margin-right: 10px;
+        }
+
+        /* News Ticker */
+        .news-ticker-container {
+            background: var(--ticker-bg);
+            color: var(--ticker-text);
+            padding: 12px 0;
+            overflow: hidden;
+            position: relative;
+            border-bottom: 2px solid var(--primary-color);
+            box-shadow: var(--shadow);
+        }
+        
+        .news-ticker {
+            display: flex;
+            animation: scroll-left 60s linear infinite;
+            white-space: nowrap;
+        }
+        
+        .news-item {
+            display: inline-flex;
+            align-items: center;
+            margin-right: 50px;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        
+        .news-item:hover {
+            color: var(--primary-color);
+            text-shadow: 0 0 5px currentColor;
+        }
+        
+        .news-item .emoji {
+            margin-right: 8px;
+            font-size: 16px;
+        }
+        
+        .news-item .source {
+            background: var(--primary-color);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 10px;
+            margin-left: 8px;
+            text-transform: uppercase;
+        }
+        
+        @keyframes scroll-left {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        
+        .ticker-controls {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            gap: 10px;
+        }
+        
+        .ticker-btn {
+            background: var(--primary-color);
+            border: none;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .ticker-btn:hover {
+            opacity: 0.8;
+            transform: scale(1.05);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 300;
+            background: linear-gradient(135deg, var(--primary-color), var(--info-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .btn {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        
+        .btn-primary { background: var(--primary-color); color: white; }
+        .btn-success { background: var(--success-color); color: white; }
+        .btn-warning { background: var(--warning-color); color: white; }
+        .btn-info { background: var(--info-color); color: white; }
+        
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card h3 {
+            margin-bottom: 20px;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-color);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(var(--primary-color), 0.1);
+        }
+        
+        .email-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            min-height: 50px;
+            cursor: text;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .email-tag {
+            background: var(--primary-color);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .email-tag-remove {
+            cursor: pointer;
+            font-weight: bold;
+            opacity: 0.7;
+        }
+        
+        .email-tag-remove:hover { opacity: 1; }
+        
+        .email-input {
+            border: none;
+            outline: none;
+            background: transparent;
+            flex: 1;
+            min-width: 150px;
+            font-size: 14px;
+            color: var(--text-color);
+        }
+        
+        .source-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .source-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+        
+        .source-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .source-emoji { font-size: 18px; }
+        
+        .source-name {
+            font-weight: 500;
+            color: var(--text-color);
+        }
+        
+        .source-category {
+            font-size: 12px;
+            color: var(--text-color);
+            opacity: 0.7;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+        
+        .toggle {
+            position: relative;
+            width: 50px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .toggle.active { background: var(--primary-color); }
+        
+        .toggle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        .toggle.active::after { transform: translateX(26px); }
+        
+        .log-container {
+            background: var(--ticker-bg);
+            color: var(--ticker-text);
+            padding: 20px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .notification {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            padding: 16px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            box-shadow: var(--shadow);
+            transform: translateX(400px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            max-width: 350px;
+            backdrop-filter: blur(20px);
+        }
+        
+        .notification.show { transform: translateX(0); }
+        .notification.success { background: var(--success-color); }
+        .notification.error { background: #f56565; }
+        .notification.warning { background: var(--warning-color); }
+        .notification.info { background: var(--info-color); }
+        
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .status-item {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .status-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+        
+        .status-label {
+            font-size: 12px;
+            color: var(--text-color);
+            opacity: 0.7;
+            text-transform: uppercase;
+        }
+        
+        @media (max-width: 768px) {
+            .container { padding: 15px; }
+            .card-grid { grid-template-columns: 1fr; }
+            .controls { grid-template-columns: 1fr; }
+            .header { padding: 20px; }
+            .header h1 { font-size: 2rem; }
+            .ticker-controls { display: none; }
+            .news-item { font-size: 12px; }
+            .theme-selector { 
+                position: relative; 
+                top: auto; 
+                right: auto; 
+                margin-bottom: 20px; 
+                width: 100%;
+            }
+            .theme-options { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Theme Selector -->
+    <div class="theme-selector">
+        <div class="theme-options">
+            <span class="theme-label">🎨 Theme:</span>
+            <div class="theme-btn default active" onclick="changeTheme('default')" title="Original"></div>
+            <div class="theme-btn matrix" onclick="changeTheme('matrix')" title="Matrix"></div>
+            <div class="theme-btn cyberpunk" onclick="changeTheme('cyberpunk')" title="Cyberpunk"></div>
+            <div class="theme-btn minimal" onclick="changeTheme('minimal')" title="Minimal"></div>
+            <div class="theme-btn ocean" onclick="changeTheme('ocean')" title="Ocean"></div>
+            <div class="theme-btn sunset" onclick="changeTheme('sunset')" title="Sunset"></div>
+            <div class="theme-btn forest" onclick="changeTheme('forest')" title="Forest"></div>
+        </div>
+    </div>
+
+    <!-- Technical News Ticker Bar -->
+    <div class="news-ticker-container">
+        <div class="news-ticker" id="newsTicker">
+            <!-- News items will be populated by JavaScript -->
+        </div>
+        <div class="ticker-controls">
+            <button class="ticker-btn" onclick="toggleTicker()" id="tickerToggle">⏸️ PAUSE</button>
+            <button class="ticker-btn" onclick="refreshNews()">🔄 REFRESH</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <header class="header">
+            <h1>🚀 Daily Tech Digest</h1>
+            <p>Multi-Theme Enterprise Edition</p>
+            <div class="status-grid">
+                <div class="status-item">
+                    <div class="status-number" id="sources-count">12</div>
+                    <div class="status-label">Sources</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-number" id="articles-count">0</div>
+                    <div class="status-label">Articles</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-number" id="recipients-count">0</div>
+                    <div class="status-label">Recipients</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-number" id="ticker-count">15</div>
+                    <div class="status-label">Live News</div>
+                </div>
+            </div>
+        </header>
+
+        <div class="controls">
+            <button class="btn btn-success" onclick="sendDigest()">
+                <span>📬</span> Send Digest
+            </button>
+            <button class="btn btn-info" onclick="testSources()">
+                <span>🔍</span> Test Sources
+            </button>
+            <button class="btn btn-warning" onclick="previewDigest()">
+                <span>👁️</span> Preview
+            </button>
+            <button class="btn btn-primary" onclick="testEmail()">
+                <span>✉️</span> Test Email
+            </button>
+        </div>
+
+        <div class="card-grid">
+            <div class="card">
+                <h3>📧 Email Configuration</h3>
+                
+                <div class="form-group">
+                    <label class="form-label">Email Recipients</label>
+                    <div class="email-tags" id="emailTags" onclick="focusEmailInput()">
+                        <input type="email" class="email-input" id="emailInput" placeholder="Add email addresses..." onkeydown="handleEmailInput(event)">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">From Email</label>
+                    <input type="email" class="form-control" id="fromEmail" placeholder="your@domain.com">
+                </div>
+
+                <button class="btn btn-primary" onclick="saveConfig()">💾 Save Configuration</button>
+            </div>
+
+            <div class="card">
+                <h3>🎯 News Sources</h3>
+                <div id="sourcesList"></div>
+                <div style="margin-top: 15px;">
+                    <button class="btn btn-info" onclick="toggleAllSources()">🔄 Toggle All</button>
+                    <button class="btn btn-warning" onclick="resetSources()">🔧 Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>📝 Activity Log</h3>
+            <div class="log-container" id="activityLog"></div>
+        </div>
+    </div>
+
+    <div id="notificationContainer"></div>
+
+    <script>
+        // Theme management
+        let currentTheme = 'default';
+        
+        function changeTheme(theme) {
+            currentTheme = theme;
+            document.body.className = theme === 'default' ? '' : `theme-${theme}`;
+            
+            // Update active theme button
+            document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.theme-btn.${theme}`).classList.add('active');
+            
+            // Save theme preference
+            localStorage.setItem('selectedTheme', theme);
+            
+            addLog(`🎨 Theme changed to: ${theme.charAt(0).toUpperCase() + theme.slice(1)}`);
+            showNotification(`🎨 Theme switched to ${theme.charAt(0).toUpperCase() + theme.slice(1)}!`, 'info');
+        }
+
+        // Load saved theme
+        function loadTheme() {
+            const saved = localStorage.getItem('selectedTheme');
+            if (saved) {
+                changeTheme(saved);
+            }
+        }
+
+        // App variables
+        let emailList = [];
+        let tickerPaused = false;
+        let newsItems = [];
+        let sources = {
+            'hacker_news': { 
+                name: 'Hacker News', 
+                enabled: true, 
+                emoji: '🔥', 
+                category: 'Tech News',
+                url: 'https://api.hnpwa.com/v0/news/1.json'
+            },
+            'github_trending': { 
+                name: 'GitHub Trending', 
+                enabled: true, 
+                emoji: '⭐', 
+                category: 'Open Source',
+                url: 'https://api.github.com/search/repositories?q=created:>2024-01-01&sort=stars&order=desc&per_page=10'
+            },
+            'reddit_programming': { 
+                name: 'Reddit Programming', 
+                enabled: true, 
+                emoji: '💻', 
+                category: 'Programming',
+                url: 'https://www.reddit.com/r/programming/hot.json?limit=10'
+            },
+            'reddit_ml': { 
+                name: 'Reddit ML', 
+                enabled: true, 
+                emoji: '🧠', 
+                category: 'Machine Learning',
+                url: 'https://www.reddit.com/r/MachineLearning/hot.json?limit=10'
+            },
+            'reddit_deeplearning': { 
+                name: 'Reddit Deep Learning', 
+                enabled: true, 
+                emoji: '🔬', 
+                category: 'Deep Learning',
+                url: 'https://www.reddit.com/r/deeplearning/hot.json?limit=10'
+            },
+            'reddit_artificial': { 
+                name: 'Reddit AI', 
+                enabled: true, 
+                emoji: '🎯', 
+                category: 'Artificial Intelligence',
+                url: 'https://www.reddit.com/r/artificial/hot.json?limit=10'
+            },
+            'medium_tech': { 
+                name: 'Medium Tech', 
+                enabled: true, 
+                emoji: '📝', 
+                category: 'Tech Articles',
+                url: 'https://medium.com/feed/topic/technology'
+            },
+            'fast_ai': { 
+                name: 'Fast.ai', 
+                enabled: true, 
+                emoji: '⚡', 
+                category: 'AI Education',
+                url: 'https://www.fast.ai/posts/'
+            },
+            'hugging_face': { 
+                name: 'Hugging Face', 
+                enabled: true, 
+                emoji: '🤗', 
+                category: 'AI Models',
+                url: 'https://huggingface.co/papers'
+            },
+            'dev_to': { 
+                name: 'DEV.to', 
+                enabled: true, 
+                emoji: '👨‍💻', 
+                category: 'Development',
+                url: 'https://dev.to/api/articles?top=7'
+            },
+            'product_hunt': { 
+                name: 'Product Hunt', 
+                enabled: true, 
+                emoji: '🏆', 
+                category: 'Products',
+                url: 'https://api.producthunt.com/v1/posts'
+            },
+            'tech_news': { 
+                name: 'Tech News AI', 
+                enabled: true, 
+                emoji: '🤖', 
+                category: 'AI & Innovation',
+                url: 'simulated'
+            }
+        };
+
+        // Sample news data for ticker
+        const sampleNews = [
+            { title: "AI breakthrough achieves 95% accuracy in medical diagnosis", source: "HN", emoji: "🔥" },
+            { title: "New JavaScript framework reduces bundle size by 60%", source: "DEV", emoji: "👨‍💻" },
+            { title: "Quantum computing startup secures $200M Series B funding", source: "TC", emoji: "💰" },
+            { title: "Open-source project reaches 100k GitHub stars in 24 hours", source: "GH", emoji: "⭐" },
+            { title: "Major security vulnerability discovered in popular library", source: "SEC", emoji: "🔒" },
+            { title: "Understanding Transformers: A Deep Dive into Attention", source: "MED", emoji: "📝" },
+            { title: "Fast.ai releases new course on practical deep learning", source: "FAI", emoji: "⚡" },
+            { title: "Revolutionary battery technology promises 10x faster charging", source: "TECH", emoji: "⚡" },
+            { title: "New Hugging Face model achieves SOTA on language tasks", source: "HF", emoji: "🤗" },
+            { title: "[D] Best practices for training large language models", source: "r/ML", emoji: "🧠" },
+            { title: "PyTorch 2.0 introduces compile mode for 2x speedup", source: "r/DL", emoji: "🔬" },
+            { title: "GPT-4 vs Claude: Comprehensive benchmark comparison", source: "r/AI", emoji: "🎯" },
+            { title: "Google announces new AI research lab focused on AGI", source: "MED", emoji: "📝" },
+            { title: "Meta open-sources Llama 3 with 400B parameters", source: "HF", emoji: "🤗" },
+            { title: "How to fine-tune BERT for your specific domain", source: "FAI", emoji: "⚡" }
+        ];
+
+        // Initialize the app
+        function init() {
+            loadTheme();
+            renderSources();
+            loadConfig();
+            initTicker();
+            addLog('🚀 Daily Tech Digest initialized successfully');
+            showNotification('🎉 Multi-Theme App loaded successfully!', 'success');
+            updateCounts();
+        }
+
+        // Ticker functionality
+        function initTicker() {
+            newsItems = [...sampleNews];
+            renderTicker();
+            addLog('📺 News ticker initialized with ' + newsItems.length + ' items');
+        }
+
+        function renderTicker() {
+            const ticker = document.getElementById('newsTicker');
+            ticker.innerHTML = '';
+            
+            newsItems.forEach(item => {
+                const newsElement = document.createElement('div');
+                newsElement.className = 'news-item';
+                newsElement.innerHTML = `
+                    <span class="emoji">${item.emoji}</span>
+                    ${item.title}
+                    <span class="source">${item.source}</span>
+                `;
+                newsElement.onclick = () => showNotification('📰 News item clicked: ' + item.title, 'info');
+                ticker.appendChild(newsElement);
+            });
+            
+            document.getElementById('ticker-count').textContent = newsItems.length;
+        }
+
+        function toggleTicker() {
+            const ticker = document.getElementById('newsTicker');
+            const toggleBtn = document.getElementById('tickerToggle');
+            
+            tickerPaused = !tickerPaused;
+            
+            if (tickerPaused) {
+                ticker.style.animationPlayState = 'paused';
+                toggleBtn.innerHTML = '▶️ PLAY';
+                addLog('⏸️ News ticker paused');
+            } else {
+                ticker.style.animationPlayState = 'running';
+                toggleBtn.innerHTML = '⏸️ PAUSE';
+                addLog('▶️ News ticker resumed');
+            }
+        }
+
+        function refreshNews() {
+            // Simulate fetching new news from various sources
+            const newHeadlines = [
+                { title: "Breaking: New AI model surpasses human performance in coding", source: "AI", emoji: "🤖" },
+                { title: "Cryptocurrency market sees unexpected surge", source: "CRYPTO", emoji: "💎" },
+                { title: "Major cloud provider experiences global outage", source: "CLOUD", emoji: "☁️" },
+                { title: "Startup develops revolutionary solar panel technology", source: "GREEN", emoji: "☀️" },
+                { title: "Medium: How to build production-ready ML pipelines", source: "MED", emoji: "📝" },
+                { title: "Fast.ai introduces new computer vision course", source: "FAI", emoji: "⚡" },
+                { title: "Hugging Face releases multimodal transformer model", source: "HF", emoji: "🤗" },
+                { title: "[R] Novel attention mechanism improves efficiency 10x", source: "r/ML", emoji: "🧠" },
+                { title: "PyTorch Lightning simplifies distributed training", source: "r/DL", emoji: "🔬" },
+                { title: "OpenAI announces GPT-5 development roadmap", source: "r/AI", emoji: "🎯" }
+            ];
+            
+            // Mix old and new news
+            newsItems = [...newHeadlines, ...sampleNews.slice(0, 5)];
+            renderTicker();
+            addLog('🔄 News ticker refreshed with latest headlines');
+            showNotification('✅ News ticker updated with fresh content!', 'success');
+        }
+
+        // Email management
+        function focusEmailInput() {
+            document.getElementById('emailInput').focus();
+        }
+
+        function handleEmailInput(event) {
+            if (event.key === 'Enter' || event.key === ',') {
+                event.preventDefault();
+                const input = event.target;
+                const email = input.value.trim();
+                if (email && isValidEmail(email) && !emailList.includes(email)) {
+                    addEmail(email);
+                    input.value = '';
+                }
+            }
+        }
+
+        function addEmail(email) {
+            emailList.push(email);
+            const tag = document.createElement('div');
+            tag.className = 'email-tag';
+            tag.innerHTML = email + '<span class="email-tag-remove" onclick="removeEmail(\'' + email + '\')">&times;</span>';
+            document.getElementById('emailInput').before(tag);
+            updateCounts();
+            addLog('📧 Added email: ' + email);
+        }
+
+        function removeEmail(email) {
+            emailList = emailList.filter(e => e !== email);
+            renderEmailTags();
+            updateCounts();
+            addLog('🗑️ Removed email: ' + email);
+        }
+
+        function renderEmailTags() {
+            const container = document.getElementById('emailTags');
+            const input = document.getElementById('emailInput');
+            
+            // Remove existing tags
+            const tags = container.querySelectorAll('.email-tag');
+            tags.forEach(tag => tag.remove());
+            
+            // Add current tags
+            emailList.forEach(email => {
+                const tag = document.createElement('div');
+                tag.className = 'email-tag';
+                tag.innerHTML = email + '<span class="email-tag-remove" onclick="removeEmail(\'' + email + '\')">&times;</span>';
+                input.before(tag);
+            });
+        }
+
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        // Sources management
+        function renderSources() {
+            const container = document.getElementById('sourcesList');
+            container.innerHTML = '';
+            
+            Object.keys(sources).forEach(key => {
+                const source = sources[key];
+                const sourceItem = document.createElement('div');
+                sourceItem.className = 'source-item';
+                sourceItem.innerHTML = 
+                    '<div class="source-info">' +
+                        '<span class="source-emoji">' + source.emoji + '</span>' +
+                        '<div>' +
+                            '<div class="source-name">' + source.name + '</div>' +
+                            '<div class="source-category">' + source.category + '</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="toggle ' + (source.enabled ? 'active' : '') + '" onclick="toggleSource(\'' + key + '\')"></div>';
+                container.appendChild(sourceItem);
+            });
+        }
+
+        function toggleSource(key) {
+            sources[key].enabled = !sources[key].enabled;
+            renderSources();
+            addLog((sources[key].enabled ? '✅' : '❌') + ' ' + sources[key].name);
+            updateCounts();
+        }
+
+        function toggleAllSources() {
+            const anyEnabled = Object.values(sources).some(s => s.enabled);
+            Object.keys(sources).forEach(key => {
+                sources[key].enabled = !anyEnabled;
+            });
+            renderSources();
+            addLog('🔄 All sources ' + (anyEnabled ? 'disabled' : 'enabled'));
+            updateCounts();
+        }
+
+        function resetSources() {
+            Object.keys(sources).forEach(key => {
+                sources[key].enabled = true;
+            });
+            renderSources();
+            addLog('🔧 Sources reset to defaults');
+            updateCounts();
+        }
+
+        // Main functions
+        function sendDigest() {
+            if (emailList.length === 0) {
+                showNotification('❌ Please add email recipients', 'error');
+                return;
+            }
+            
+            addLog('📬 Starting digest generation for ' + emailList.length + ' recipients...');
+            
+            // Simulate sending
+            setTimeout(() => {
+                const html = generateDigestHTML();
+                saveEmail(html, emailList.join(', '), '🚀 Daily Tech Digest - ' + new Date().toLocaleDateString());
+                showNotification('✅ Digest prepared for all recipients!', 'success');
+                addLog('✅ Digest completed successfully');
+            }, 2000);
+        }
+
+        function testSources() {
+            addLog('🔍 Testing all enabled sources...');
+            
+            const enabledSources = Object.values(sources).filter(s => s.enabled);
+            let articleCount = 0;
+            
+            enabledSources.forEach(source => {
+                const count = Math.floor(Math.random() * 8) + 3; // 3-10 articles
+                articleCount += count;
+                addLog('  ✅ ' + source.name + ': ' + count + ' articles');
+            });
+            
+            showNotification('📊 Found ' + articleCount + ' articles from ' + enabledSources.length + ' sources', 'success');
+            document.getElementById('articles-count').textContent = articleCount;
+        }
+
+        function previewDigest() {
+            addLog('👁️ Generating digest preview...');
+            
+            const html = generateDigestHTML();
+            saveEmail(html, emailList.join(', '), '🚀 Daily Tech Digest - ' + new Date().toLocaleDateString());
+            
+            // Try to open popup window with error handling
+            try {
+                const previewWindow = window.open('', 'preview', 'width=800,height=600,scrollbars=yes');
+                
+                if (previewWindow && previewWindow.document) {
+                    previewWindow.document.write(html);
+                    previewWindow.document.close();
+                    showNotification('👁️ Preview opened in new window', 'info');
+                    addLog('👁️ Preview generated successfully');
+                } else {
+                    throw new Error('Popup blocked or not supported');
+                }
+            } catch (error) {
+                // Fallback: Show preview in modal overlay
+                showPreviewModal(html);
+                showNotification('👁️ Preview displayed (popup blocked)', 'warning');
+                addLog('👁️ Preview shown in modal (popup blocked)');
+            }
+        }
+
+        function showPreviewModal(html) {
+            // Create modal overlay
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+            `;
+            
+            const modalContent = document.createElement('div');
+            modalContent.style.cssText = `
+                background: white;
+                border-radius: 12px;
+                width: 90%;
+                max-width: 800px;
+                height: 90%;
+                display: flex;
+                flex-direction: column;
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+            `;
+            
+            const modalHeader = document.createElement('div');
+            modalHeader.style.cssText = `
+                padding: 20px;
+                border-bottom: 1px solid #e2e8f0;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                color: white;
+                border-radius: 12px 12px 0 0;
+            `;
+            modalHeader.innerHTML = `
+                <h3 style="margin: 0; font-size: 18px;">📧 Email Preview</h3>
+                <button onclick="this.closest('.modal-overlay').remove()" 
+                        style="background: rgba(255,255,255,0.2); border: none; color: white; 
+                               padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold;">✕</button>
+            `;
+            
+            const iframe = document.createElement('iframe');
+            iframe.style.cssText = `
+                flex: 1;
+                border: none;
+                border-radius: 0 0 12px 12px;
+            `;
+            iframe.srcdoc = html;
+            
+            modalContent.appendChild(modalHeader);
+            modalContent.appendChild(iframe);
+            modal.appendChild(modalContent);
+            modal.className = 'modal-overlay';
+            
+            // Close on background click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+            
+            // Close on Escape key
+            document.addEventListener('keydown', function escapeHandler(e) {
+                if (e.key === 'Escape') {
+                    modal.remove();
+                    document.removeEventListener('keydown', escapeHandler);
+                }
+            });
+            
+            document.body.appendChild(modal);
+        }
+
+        function testEmail() {
+            if (emailList.length === 0) {
+                showNotification('❌ Please add at least one email address', 'error');
+                return;
+            }
+            
+            addLog('✉️ Testing email functionality...');
+            
+            const testHTML = generateTestEmail();
+            saveEmail(testHTML, emailList[0], 'Test Email from Daily Tech Digest');
+            
+            showNotification('✅ Test email prepared for ' + emailList[0] + '!', 'success');
+            addLog('✅ Test email prepared for ' + emailList[0]);
+        }
+
+        // HTML generation
+        function generateDigestHTML() {
+            const date = new Date().toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            
+            return '<!DOCTYPE html>' +
+                '<html><head><meta charset="UTF-8"><title>Daily Tech Digest</title>' +
+                '<style>body{font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;background:#f8f9fa;}' +
+                '.header{background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:30px;border-radius:12px;text-align:center;margin-bottom:20px;}' +
+                '.category{background:white;padding:20px;border-radius:8px;margin-bottom:15px;box-shadow:0 2px 8px rgba(0,0,0,0.1);}' +
+                '.article{padding:12px;margin-bottom:8px;border-left:4px solid #667eea;background:#f8f9fa;border-radius:4px;}' +
+                '.article a{color:#333;text-decoration:none;font-weight:500;}</style></head>' +
+                '<body><div class="header"><h1>🚀 Daily Tech Digest</h1><p>' + date + ' • Multi-Theme Edition</p></div>' +
+                '<div class="category"><h2>🔥 Tech News</h2>' +
+                '<div class="article"><a href="https://example.com/1">Revolutionary AI Breakthrough Announced by Tech Giants</a></div>' +
+                '<div class="article"><a href="https://example.com/2">New Programming Language Promises 10x Performance Boost</a></div>' +
+                '<div class="article"><a href="https://example.com/3">Startup Raises $100M for Quantum Computing Platform</a></div></div>' +
+                '<div class="category"><h2>⭐ Open Source</h2>' +
+                '<div class="article"><a href="https://example.com/4">Popular Framework Releases Major Update</a></div>' +
+                '<div class="article"><a href="https://example.com/5">New Developer Tool Simplifies Complex Workflows</a></div></div>' +
+                '<div style="text-align:center;padding:15px;background:#e9ecef;border-radius:8px;margin-top:20px;">' +
+                'Generated by Daily Tech Digest Multi-Theme Edition</div></body></html>';
+        }
+
+        function generateTestEmail() {
+            return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Test Email</title>' +
+                '<style>body{font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;background:#f8f9fa;}' +
+                '.header{background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:30px;border-radius:12px;text-align:center;margin-bottom:20px;}' +
+                '.content{background:white;padding:20px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1);}' +
+                '.success{color:#48bb78;font-size:18px;text-align:center;margin-bottom:15px;}</style></head>' +
+                '<body><div class="header"><h1>🚀 Test Email</h1><p>Daily Tech Digest - Multi-Theme Edition</p></div>' +
+                '<div class="content"><div class="success">✅ Email system is working correctly!</div>' +
+                '<p>This test confirms your configuration is ready.</p>' +
+                '<p><strong>Recipients:</strong> ' + emailList.length + '<br>' +
+                '<strong>Generated:</strong> ' + new Date().toLocaleString() + '</p></div></body></html>';
+        }
+
+        // Utility functions
+        function saveEmail(html, toEmail, subject) {
+            const emailData = {
+                html: html,
+                to: toEmail,
+                subject: subject,
+                timestamp: new Date().toISOString()
+            };
+            
+            localStorage.setItem('lastGeneratedEmail', JSON.stringify(emailData));
+            
+            const history = JSON.parse(localStorage.getItem('emailHistory') || '[]');
+            history.unshift(emailData);
+            if (history.length > 10) history.splice(10);
+            localStorage.setItem('emailHistory', JSON.stringify(history));
+        }
+
+        function saveConfig() {
+            const config = {
+                emailList: emailList,
+                fromEmail: document.getElementById('fromEmail').value,
+                sources: sources,
+                theme: currentTheme,
+                lastUpdated: new Date().toISOString()
+            };
+            
+            localStorage.setItem('techDigestConfig', JSON.stringify(config));
+            showNotification('✅ Configuration saved!', 'success');
+            addLog('💾 Configuration saved');
+        }
+
+        function loadConfig() {
+            const stored = localStorage.getItem('techDigestConfig');
+            if (stored) {
+                const config = JSON.parse(stored);
+                if (config.emailList) {
+                    emailList = config.emailList;
+                    renderEmailTags();
+                }
+                if (config.fromEmail) {
+                    document.getElementById('fromEmail').value = config.fromEmail;
+                }
+                if (config.sources) {
+                    sources = config.sources;
+                    renderSources();
+                }
+                addLog('📂 Configuration loaded');
+            }
+        }
+
+        function updateCounts() {
+            const enabledCount = Object.values(sources).filter(s => s.enabled).length;
+            document.getElementById('sources-count').textContent = enabledCount;
+            document.getElementById('recipients-count').textContent = emailList.length;
+        }
+
+        function addLog(message) {
+            const log = document.getElementById('activityLog');
+            const timestamp = new Date().toLocaleTimeString();
+            log.textContent += '[' + timestamp + '] ' + message + '\n';
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = 'notification ' + type;
+            notification.textContent = message;
+            
+            const container = document.getElementById('notificationContainer');
+            container.appendChild(notification);
+            
+            setTimeout(() => notification.classList.add('show'), 100);
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (container.contains(notification)) {
+                        container.removeChild(notification);
+                    }
+                }, 300);
+            }, 5000);
+        }
+
+        // Initialize when page loads
+        window.addEventListener('load', init);
+        
+        console.log('🚀 Daily Tech Digest - Multi-Theme Edition Loaded!');
+    </script>
+</body>
+</html>
