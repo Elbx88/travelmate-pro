@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✈️ Complete Travel Itinerary Planner</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places,geometry,directions&callback=initMap" async defer></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: var(--text-color);
+            line-height: 1.6;
+            background: var(--bg-gradient);
+            transition: all 0.3s ease;
+        }
+
+        :root {
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-color: #2d3748;
+            --primary-color: #667eea;
+            --success-color: #48bb78;
+            --warning-color: #ed8936;
+            --info-color: #4299e1;
+            --accent-color: #ff6b6b;
+            --flight-color: #3b82f6;
+            --hotel-color: #10b981;
+            --transport-color: #f59e0b;
+            --activity-color: #8b5cf6;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 300;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 350px 1fr 400px;
+            gap: 30px;
+            min-height: 80vh;
+        }
+
+        .sidebar-left {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .content-area {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .sidebar-right {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover { transform: translateY(-2px); }
+
+        .card h3 {
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        /* Trip Overview */
+        .trip-overview {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .trip-dates {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .trip-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+            text-transform: uppercase;
+        }
+
+        /* Map Container */
+        .map-container {
+            height: 600px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+
+        .map-controls {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            z-index: 10;
+            display: flex;
+            gap: 10px;
+        }
+
+        .map-legend {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            z-index: 10;
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+        }
+
+        .map-btn {
+            background: var(--card-bg);
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .map-btn:hover { transform: translateY(-2px); }
+        .map-btn.active { background: var(--primary-color); color: white; }
+
+        /* Schedule Timeline */
+        .schedule-container {
+            max-height: 700px;
+            overflow-y: auto;
+        }
+
+        .day-schedule {
+            margin-bottom: 30px;
+        }
+
+        .day-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .day-info h4 {
+            margin-bottom: 5px;
+            font-size: 1.3rem;
+        }
+
+        .day-weather {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .day-stats {
+            text-align: right;
+            font-size: 12px;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(to bottom, var(--flight-color), var(--hotel-color), var(--transport-color), var(--activity-color));
+            border-radius: 2px;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 20px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-left: 4px solid transparent;
+        }
+
+        .timeline-item:hover {
+            transform: translateX(5px);
+            box-shadow: var(--shadow);
+        }
+
+        .timeline-item.flight { border-left-color: var(--flight-color); }
+        .timeline-item.hotel { border-left-color: var(--hotel-color); }
+        .timeline-item.transport { border-left-color: var(--transport-color); }
+        .timeline-item.activity { border-left-color: var(--activity-color); }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -32px;
+            top: 25px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 3px solid var(--card-bg);
+            background: var(--primary-color);
+        }
+
+        .timeline-item.flight::before { background: var(--flight-color); }
+        .timeline-item.hotel::before { background: var(--hotel-color); }
+        .timeline-item.transport::before { background: var(--transport-color); }
+        .timeline-item.activity::before { background: var(--activity-color); }
+
+        .timeline-time {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .timeline-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: white;
+        }
+
+        .timeline-content {
+            margin-bottom: 10px;
+        }
+
+        .timeline-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+        }
+
+        .timeline-description {
+            color: var(--text-color);
+            opacity: 0.8;
+            margin-bottom: 10px;
+        }
+
+        .timeline-details {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .detail-item {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Flight Details */
+        .flight-details {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 20px;
+            align-items: center;
+            margin: 15px 0;
+        }
+
+        .flight-airport {
+            text-align: center;
+        }
+
+        .airport-code {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--flight-color);
+        }
+
+        .airport-name {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .flight-duration {
+            text-align: center;
+            padding: 10px;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 8px;
+        }
+
+        .flight-line {
+            height: 2px;
+            background: var(--flight-color);
+            position: relative;
+            margin: 5px 0;
+        }
+
+        .flight-line::after {
+            content: '✈️';
+            position: absolute;
+            right: -10px;
+            top: -8px;
+            font-size: 12px;
+        }
+
+        /* Hotel Details */
+        .hotel-details {
+            display: grid;
+            grid-template-columns: 60px 1fr auto;
+            gap: 15px;
+            align-items: center;
+            margin: 15px 0;
+        }
+
+        .hotel-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            background: var(--hotel-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .hotel-info {
+            flex: 1;
+        }
+
+        .hotel-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .hotel-address {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .hotel-rating {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .stars {
+            color: #fbbf24;
+        }
+
+        .hotel-price {
+            text-align: right;
+            font-weight: bold;
+            color: var(--hotel-color);
+        }
+
+        /* Transportation Options */
+        .transport-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .transport-option {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .transport-option:hover {
+            background: rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .transport-option.selected {
+            border-color: var(--transport-color);
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .transport-icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .transport-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .transport-details {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .action-btn {
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .action-btn:hover { transform: translateY(-2px); }
+        .btn-flight { background: var(--flight-color); color: white; }
+        .btn-hotel { background: var(--hotel-color); color: white; }
+        .btn-transport { background: var(--transport-color); color: white; }
+        .btn-activity { background: var(--activity-color); color: white; }
+
+        /* Booking Summary */
+        .booking-summary {
+            background: linear-gradient(135deg, var(--success-color), var(--info-color));
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .summary-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .summary-amount {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .summary-label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .total-cost {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .total-amount {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .sidebar-left, .sidebar-right {
+                order: 1;
+            }
+            
+            .content-area {
+                order: 2;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 15px; }
+            .header h1 { font-size: 2rem; }
+            .trip-dates { grid-template-columns: 1fr; }
+            .trip-stats { grid-template-columns: 1fr; }
+            .flight-details { grid-template-columns: 1fr; }
+            .hotel-details { grid-template-columns: 1fr; }
+            .transport-options { grid-template-columns: 1fr; }
+            .quick-actions { grid-template-columns: 1fr; }
+            .map-container { height: 400px; }
+        }
+
+        /* Animations */
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .timeline-item {
+            animation: slideIn 0.5s ease forwards;
+        }
+
+        /* Loading States */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            opacity: 0.7;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>✈️ Complete Travel Itinerary Planner</h1>
+            <p>AI-powered trip planning with flights, hotels, transportation & activities</p>
+        </header>
+
+        <div class="main-layout">
+            <!-- Left Sidebar - Trip Overview & Controls -->
+            <div class="sidebar-left">
+                <!-- Trip Overview -->
+                <div class="trip-overview">
+                    <h3>🗺️ Your Trip to Tokyo</h3>
+                    <div class="trip-dates">
+                        <div>
+                            <strong>Departure</strong><br>
+                            Jan 15, 2024<br>
+                            <small>New York (JFK)</small>
+                        </div>
+                        <div>
+                            <strong>Return</strong><br>
+                            Jan 22, 2024<br>
+                            <small>Tokyo (NRT)</small>
+                        </div>
+                    </div>
+                    <div class="trip-stats">
+                        <div class="stat-item">
+                            <div class="stat-number">7</div>
+                            <div class="stat-label">Days</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">15</div>
+                            <div class="stat-label">Activities</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">3</div>
+                            <div class="stat-label">Hotels</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">$2,850</div>
+                            <div class="stat-label">Total Cost</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card">
+                    <h3>🚀 Quick Actions</h3>
+                    <div class="quick-actions">
+                        <button class="action-btn btn-flight" onclick="showFlightDetails()">
+                            <span>✈️</span> Flights
+                        </button>
+                        <button class="action-btn btn-hotel" onclick="showHotelDetails()">
+                            <span>🏨</span> Hotels
+                        </button>
+                        <button class="action-btn btn-transport" onclick="showTransportOptions()">
+                            <span>🚗</span> Transport
+                        </button>
+                        <button class="action-btn btn-activity" onclick="showActivities()">
+                            <span>🎯</span> Activities
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Map Controls -->
+                <div class="card">
+                    <h3>🗺️ Map Controls</h3>
+                    <div class="map-controls-panel">
+                        <button class="map-btn active" onclick="toggleMapView('overview')">📍 Overview</button>
+                        <button class="map-btn" onclick="toggleMapView('routes')">🛣️ Routes</button>
+                        <button class="map-btn" onclick="toggleMapView('traffic')">🚦 Traffic</button>
+                        <button class="map-btn" onclick="toggleMapView('transit')">🚇 Transit</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Center Content - Map & Timeline -->
+            <div class="content-area">
+                <!-- Interactive Map -->
+                <div class="map-container">
+                    <div class="map-controls">
+                        <button class="map-btn" onclick="centerMap()">🎯 Center</button>
+                        <button class="map-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+                    </div>
+                    <div id="map"></div>
+                    <div class="map-legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #3b82f6;"></div>
+                            <span>Flight Route</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #10b981;"></div>
+                            <span>Hotel</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #f59e0b;"></div>
+                            <span>Transport</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #8b5cf6;"></div>
+                            <span>Activity</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timeline View Toggle -->
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3>📅 Detailed Schedule</h3>
+                        <div>
+                            <button class="map-btn" onclick="toggleView('timeline')">📋 Timeline</button>
+                            <button class="map-btn active" onclick="toggleView('calendar')">📅 Calendar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Sidebar - Schedule & Booking -->
+            <div class="sidebar-right">
+                <!-- Booking Summary -->
+                <div class="booking-summary">
+                    <h3>💰 Booking Summary</h3>
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <div class="summary-amount">$1,200</div>
+                            <div class="summary-label">Flights</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-amount">$980</div>
+                            <div class="summary-label">Hotels</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-amount">$320</div>
+                            <div class="summary-label">Transport</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-amount">$350</div>
+                            <div class="summary-label">Activities</div>
+                        </div>
+                    </div>
+                    <div class="total-cost">
+                        <div class="total-amount">$2,850</div>
+                        <div class="summary-label">Total Trip Cost</div>
+                    </div>
+                </div>
+
+                <!-- Daily Schedule -->
+                <div class="card">
+                    <h3>📋 Daily Schedule</h3>
+                    <div class="schedule-container" id="scheduleContainer">
+                        <!-- Schedule will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let map;
+        let directionsService;
+        let directionsRenderer;
+        let currentView = 'overview';
+        let markers = [];
+        let flightPath;
+
+        // Sample comprehensive itinerary data
+        const tripData = {
+            destination: "Tokyo, Japan",
+            origin: "New York, USA",
+            startDate: "2024-01-15",
+            endDate: "2024-01-22",
+            days: [
+                {
+                    date: "2024-01-15",
+                    day: "Monday",
+                    weather: { temp: "8°C", condition: "☁️", description: "Cloudy" },
+                    items: [
+                        {
+                            type: "flight",
+                            time: "08:00",
+                            title: "Flight to Tokyo",
+                            description: "JFK → NRT via United Airlines",
+                            details: {
+                                airline: "United Airlines",
+                                flightNumber: "UA78",
+                                departure: { airport: "JFK", city: "New York", time: "08:00" },
+                                arrival: { airport: "NRT", city: "Tokyo", time: "14:30+1" },
+                                duration: "14h 30m",
+                                gate: "B6",
+                                seat: "12A"
+                            },
+                            cost: 1200,
+                            location: { lat: 40.6413, lng: -73.7781 }
+                        },
+                        {
+                            type: "transport",
+                            time: "15:00",
+                            title: "Airport Transfer",
+                            description: "Narita Express to Shibuya",
+                            details: {
+                                mode: "train",
+                                route: "Narita Express",
+                                duration: "60 min",
+                                cost: 25,
+                                platform: "Platform 1"
+                            },
+                            cost: 25,
+                            location: { lat: 35.7769, lng: 140.3928 }
+                        },
+                        {
+                            type: "hotel",
+                            time: "17:00",
+                            title: "Check-in at Hotel",
+                            description: "The Shibuya Excel Hotel Tokyu",
+                            details: {
+                                name: "The Shibuya Excel Hotel Tokyu",
+                                address: "1-12-2 Dogenzaka, Shibuya",
+                                rating: 4.2,
+                                amenities: ["WiFi", "Gym", "Restaurant", "24/7 Reception"],
+                                checkIn: "15:00",
+                                checkOut: "11:00",
+                                room: "Superior Double Room"
+                            },
+                            cost: 140,
+                            location: { lat: 35.6580, lng: 139.7016 }
+                        }
+                    ]
+                },
+                {
+                    date: "2024-01-16",
+                    day: "Tuesday",
+                    weather: { temp: "12°C", condition: "☀️", description: "Sunny" },
+                    items: [
+                        {
+                            type: "activity",
+                            time: "09:00",
+                            title: "Tokyo Skytree Visit",
+                            description: "Observation deck with panoramic city views",
+                            details: {
+                                duration: "2 hours",
+                                height: "634m",
+                                floors: ["350m", "450m"],
+                                includes: ["Fast Track Entry", "Audio Guide"]
+                            },
+                            cost: 45,
+                            location: { lat: 35.7101, lng: 139.8107 }
+                        },
+                        {
+                            type: "transport",
+                            time: "11:30",
+                            title: "Metro to Asakusa",
+                            description: "Tokyo Metro Ginza Line",
+                            details: {
+                                mode: "metro",
+                                line: "Ginza Line",
+                                duration: "15 min",
+                                stops: 3
+                            },
+                            cost: 5,
+                            location: { lat: 35.7148, lng: 139.7967 }
+                        },
+                        {
+                            type: "activity",
+                            time: "12:00",
+                            title: "Senso-ji Temple",
+                            description: "Historic Buddhist temple and traditional shopping",
+                            details: {
+                                duration: "2 hours",
+                                highlights: ["Main Hall", "Nakamise Shopping Street", "Fortune Telling"],
+                                founded: "645 AD"
+                            },
+                            cost: 0,
+                            location: { lat: 35.7148, lng: 139.7967 }
+                        },
+                        {
+                            type: "activity",
+                            time: "14:30",
+                            title: "Traditional Lunch",
+                            description: "Authentic tempura at Daikokuya",
+                            details: {
+                                restaurant: "Daikokuya Tempura",
+                                cuisine: "Traditional Japanese",
+                                established: "1887",
+                                specialty: "Prawn Tempura"
+                            },
+                            cost: 35,
+                            location: { lat: 35.7148, lng: 139.7967 }
+                        }
+                    ]
+                },
+                {
+                    date: "2024-01-17",
+                    day: "Wednesday",
+                    weather: { temp: "10°C", condition: "🌧️", description: "Light rain" },
+                    items: [
+                        {
+                            type: "activity",
+                            time: "10:00",
+                            title: "Meiji Shrine",
+                            description: "Peaceful shrine dedicated to Emperor Meiji",
+                            details: {
+                                duration: "1.5 hours",
+                                features: ["Main Shrine", "Inner Garden", "Treasure Museum"],
+                                significance: "Shinto shrine"
+                            },
+                            cost: 10,
+                            location: { lat: 35.6764, lng: 139.6993 }
+                        },
+                        {
+                            type: "activity",
+                            time: "14:00",
+                            title: "Harajuku District",
+                            description: "Youth culture and fashion district",
+                            details: {
+                                duration: "3 hours",
+                                highlights: ["Takeshita Street", "Omotesando Hills", "Cat Street"],
+                                shopping: ["Fashion", "Souvenirs", "Street Food"]
+                            },
+                            cost: 50,
+                            location: { lat: 35.6702, lng: 139.7037 }
+                        }
+                    ]
+                }
+            ]
+        };
+
+        // Initialize Google Maps
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 10,
+                center: { lat: 35.6762, lng: 139.6503 }, // Tokyo center
+                styles: [
+                    {
+                        featureType: 'poi',
+                        elementType: 'labels',
+                        stylers: [{ visibility: 'off' }]
+                    }
+                ]
+            });
+
+            directionsService = new google.maps.DirectionsService();
+            directionsRenderer = new google.maps.DirectionsRenderer({
+                suppressMarkers: true,
+                polylineOptions: {
+                    strokeColor: '#667eea',
+                    strokeWeight: 4
+                }
+            });
+            directionsRenderer.setMap(map);
+
+            // Load trip data
+            loadTripData();
+            displaySchedule();
+        }
+
+        // Load trip data and display on map
+        function loadTripData() {
+            clearMarkers();
+            
+            let bounds = new google.maps.LatLngBounds();
+            
+            tripData.days.forEach((day, dayIndex) => {
+                day.items.forEach((item, itemIndex) => {
+                    const marker = new google.maps.Marker({
+                        position: item.location,
+                        map: map,
+                        title: item.title,
+                        icon: getMarkerIcon(item.type),
+                        zIndex: dayIndex * 100 + itemIndex
+                    });
+
+                    const infoWindow = new google.maps.InfoWindow({
+                        content: createInfoWindowContent(item)
+                    });
+
+                    marker.addListener('click', () => {
+                        infoWindow.open(map, marker);
+                    });
+
+                    markers.push(marker);
+                    bounds.extend(item.location);
+                });
+            });
+
+            map.fitBounds(bounds);
+            
+            // Add flight path
+            if (currentView === 'overview') {
+                drawFlightPath();
+            }
+        }
+
+        function getMarkerIcon(type) {
+            const icons = {
+                flight: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: 12,
+                    fillColor: '#3b82f6',
+                    fillOpacity: 1,
+                    strokeColor: 'white',
+                    strokeWeight: 2
+                },
+                hotel: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: 12,
+                    fillColor: '#10b981',
+                    fillOpacity: 1,
+                    strokeColor: 'white',
+                    strokeWeight: 2
+                },
+                transport: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: 8,
+                    fillColor: '#f59e0b',
+                    fillOpacity: 1,
+                    strokeColor: 'white',
+                    strokeWeight: 2
+                },
+                activity: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: 10,
+                    fillColor: '#8b5cf6',
+                    fillOpacity: 1,
+                    strokeColor: 'white',
+                    strokeWeight: 2
+                }
+            };
+
+            return icons[type] || icons.activity;
+        }
+
+        function drawFlightPath() {
+            const flightCoordinates = [
+                { lat: 40.6413, lng: -73.7781 }, // JFK
+                { lat: 35.7769, lng: 140.3928 }  // NRT
+            ];
+
+            if (flightPath) {
+                flightPath.setMap(null);
+            }
+
+            flightPath = new google.maps.Polyline({
+                path: flightCoordinates,
+                geodesic: true,
+                strokeColor: '#3b82f6',
+                strokeOpacity: 1.0,
+                strokeWeight: 3,
+                icons: [{
+                    icon: {
+                        path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+                        scale: 6,
+                        fillColor: '#3b82f6',
+                        fillOpacity: 1,
+                        strokeColor: 'white',
+                        strokeWeight: 1
+                    },
+                    offset: '50%'
+                }]
+            });
+
+            flightPath.setMap(map);
+        }
+
+        function createInfoWindowContent(item) {
+            let content = `
+                <div style="max-width: 300px; padding: 10px;">
+                    <h4 style="margin-bottom: 10px; color: #2d3748;">${item.title}</h4>
+                    <p style="margin-bottom: 10px; color: #4a5568;">${item.description}</p>
+                    <p style="margin-bottom: 10px;"><strong>Time:</strong> ${item.time}</p>
+                    <p style="margin-bottom: 10px;"><strong>Cost:</strong> $${item.cost}</p>
+            `;
+
+            if (item.type === 'flight') {
+                content += `
+                    <div style="margin-top: 10px;">
+                        <strong>Flight Details:</strong><br>
+                        ${item.details.airline} ${item.details.flightNumber}<br>
+                        ${item.details.departure.airport} → ${item.details.arrival.airport}<br>
+                        Duration: ${item.details.duration}
+                    </div>
+                `;
+            } else if (item.type === 'hotel') {
+                content += `
+                    <div style="margin-top: 10px;">
+                        <strong>Hotel Details:</strong><br>
+                        ${item.details.name}<br>
+                        Rating: ${item.details.rating}/5<br>
+                        ${item.details.address}
+                    </div>
+                `;
+            }
+
+            content += `</div>`;
+            return content;
+        }
+
+        // Display schedule in sidebar
+        function displaySchedule() {
+            const container = document.getElementById('scheduleContainer');
+            container.innerHTML = '';
+
+            tripData.days.forEach(day => {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'day-schedule';
+                
+                const dailyCost = day.items.reduce((sum, item) => sum + item.cost, 0);
+                
+                dayElement.innerHTML = `
+                    <div class="day-header">
+                        <div class="day-info">
+                            <h4>${day.day}, ${formatDate(day.date)}</h4>
+                            <div class="day-weather">
+                                <span>${day.weather.condition}</span>
+                                <span>${day.weather.temp}</span>
+                                <span>${day.weather.description}</span>
+                            </div>
+                        </div>
+                        <div class="day-stats">
+                            <div>${day.items.length} items</div>
+                            <div>$${dailyCost} total</div>
+                        </div>
+                    </div>
+                    <div class="timeline">
+                        ${day.items.map(item => createTimelineItem(item)).join('')}
+                    </div>
+                `;
+                
+                container.appendChild(dayElement);
+            });
+        }
+
+        function createTimelineItem(item) {
+            let specificContent = '';
+            
+            switch(item.type) {
+                case 'flight':
+                    specificContent = `
+                        <div class="flight-details">
+                            <div class="flight-airport">
+                                <div class="airport-code">${item.details.departure.airport}</div>
+                                <div class="airport-name">${item.details.departure.city}</div>
+                                <div>${item.details.departure.time}</div>
+                            </div>
+                            <div class="flight-duration">
+                                <div class="flight-line"></div>
+                                <div>${item.details.duration}</div>
+                                <div style="font-size: 12px;">${item.details.flightNumber}</div>
+                            </div>
+                            <div class="flight-airport">
+                                <div class="airport-code">${item.details.arrival.airport}</div>
+                                <div class="airport-name">${item.details.arrival.city}</div>
+                                <div>${item.details.arrival.time}</div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                
+                case 'hotel':
+                    specificContent = `
+                        <div class="hotel-details">
+                            <div class="hotel-image">🏨</div>
+                            <div class="hotel-info">
+                                <div class="hotel-name">${item.details.name}</div>
+                                <div class="hotel-address">${item.details.address}</div>
+                                <div class="hotel-rating">
+                                    <span class="stars">${'★'.repeat(Math.floor(item.details.rating))}</span>
+                                    <span>${item.details.rating}/5</span>
+                                </div>
+                            </div>
+                            <div class="hotel-price">
+                                <div>$${item.cost}</div>
+                                <div style="font-size: 12px;">per night</div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                
+                case 'transport':
+                    specificContent = `
+                        <div class="transport-options">
+                            <div class="transport-option selected">
+                                <div class="transport-icon">${getTransportIcon(item.details.mode)}</div>
+                                <div class="transport-name">${item.details.route || item.details.mode}</div>
+                                <div class="transport-details">
+                                    ${item.details.duration} • $${item.cost}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                
+                case 'activity':
+                    specificContent = `
+                        <div class="timeline-details">
+                            <div class="detail-item">
+                                <span>⏱️</span>
+                                <span>${item.details.duration}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span>💰</span>
+                                <span>$${item.cost}</span>
+                            </div>
+                            ${item.details.highlights ? `
+                                <div class="detail-item">
+                                    <span>✨</span>
+                                    <span>${item.details.highlights.slice(0, 2).join(', ')}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                    break;
+            }
+
+            return `
+                <div class="timeline-item ${item.type}" onclick="focusOnItem('${item.type}', '${item.time}')">
+                    <div class="timeline-time">
+                        <div class="timeline-icon" style="background: ${getTypeColor(item.type)};">
+                            ${getTypeIcon(item.type)}
+                        </div>
+                        <span>${item.time}</span>
+                        <span class="detail-item">$${item.cost}</span>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">${item.title}</div>
+                        <div class="timeline-description">${item.description}</div>
+                        ${specificContent}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Helper functions
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+
+        function getTypeColor(type) {
+            const colors = {
+                flight: '#3b82f6',
+                hotel: '#10b981',
+                transport: '#f59e0b',
+                activity: '#8b5cf6'
+            };
+            return colors[type] || '#667eea';
+        }
+
+        function getTypeIcon(type) {
+            const icons = {
+                flight: '✈️',
+                hotel: '🏨',
+                transport: '🚗',
+                activity: '🎯'
+            };
+            return icons[type] || '📍';
+        }
+
+        function getTransportIcon(mode) {
+            const icons = {
+                train: '🚅',
+                metro: '🚇',
+                bus: '🚌',
+                taxi: '🚕',
+                walk: '🚶'
+            };
+            return icons[mode] || '🚗';
+        }
+
+        function clearMarkers() {
+            markers.forEach(marker => marker.setMap(null));
+            markers = [];
+        }
+
+        // Interactive functions
+        function focusOnItem(type, time) {
+            // Find the item and center map on it
+            for (let day of tripData.days) {
+                const item = day.items.find(i => i.type === type && i.time === time);
+                if (item) {
+                    map.setCenter(item.location);
+                    map.setZoom(15);
+                    break;
+                }
+            }
+        }
+
+        function toggleMapView(viewType) {
+            currentView = viewType;
+            
+            // Update button styles
+            document.querySelectorAll('.map-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            switch(viewType) {
+                case 'overview':
+                    showOverview();
+                    break;
+                case 'routes':
+                    showRoutes();
+                    break;
+                case 'traffic':
+                    showTraffic();
+                    break;
+                case 'transit':
+                    showTransit();
+                    break;
+            }
+        }
+
+        function showOverview() {
+            loadTripData();
+        }
+
+        function showRoutes() {
+            // Calculate daily routes
+            tripData.days.forEach(day => {
+                if (day.items.length > 1) {
+                    const waypoints = day.items.slice(1, -1).map(item => ({
+                        location: item.location,
+                        stopover: true
+                    }));
+
+                    directionsService.route({
+                        origin: day.items[0].location,
+                        destination: day.items[day.items.length - 1].location,
+                        waypoints: waypoints,
+                        travelMode: google.maps.TravelMode.TRANSIT
+                    }, (result, status) => {
+                        if (status === 'OK') {
+                            directionsRenderer.setDirections(result);
+                        }
+                    });
+                }
+            });
+        }
+
+        function showTraffic() {
+            const trafficLayer = new google.maps.TrafficLayer();
+            trafficLayer.setMap(map);
+        }
+
+        function showTransit() {
+            const transitLayer = new google.maps.TransitLayer();
+            transitLayer.setMap(map);
+        }
+
+        function centerMap() {
+            map.setCenter({ lat: 35.6762, lng: 139.6503 });
+            map.setZoom(10);
+        }
+
+        function toggleFullscreen() {
+            const mapContainer = document.querySelector('.map-container');
+            if (mapContainer.requestFullscreen) {
+                mapContainer.requestFullscreen();
+            }
+        }
+
+        // Quick action functions
+        function showFlightDetails() {
+            alert('Flight booking integration would open here');
+        }
+
+        function showHotelDetails() {
+            alert('Hotel booking integration would open here');
+        }
+
+        function showTransportOptions() {
+            alert('Transportation booking would open here');
+        }
+
+        function showActivities() {
+            alert('Activity booking would open here');
+        }
+
+        function toggleView(viewType) {
+            // Toggle between timeline and calendar view
+            document.querySelectorAll('.map-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            if (viewType === 'calendar') {
+                // Would show calendar view
+                alert('Calendar view would be implemented here');
+            }
+        }
+
+        // Initialize when page loads
+        window.addEventListener('load', () => {
+            console.log('🗺️ Complete Travel Itinerary Planner loaded!');
+        });
+    </script>
+</body>
+</html>
