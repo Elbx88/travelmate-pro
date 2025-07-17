@@ -1,4 +1,0 @@
-# Repository Settings > Secrets and Variables > Actions
-VERCEL_TOKEN=your_vercel_token
-VERCEL_ORG_ID=your_org_id  
-VERCEL_PROJECT_ID=your_project_id
